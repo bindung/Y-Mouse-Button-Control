@@ -371,8 +371,11 @@ def get_modifier(key):
 
 
 def parse_string(my_str: str) -> list:
-    if my_str == "[random]":
-        return str(random.randint(1,9))
+
+    if my_str.startswith("[file:") and my_str.endswith("]"):
+        file = my_str[6:-1]
+        with open(file) as fp:
+            return fp.read().strip()
 
     keys = []
     i = 0
