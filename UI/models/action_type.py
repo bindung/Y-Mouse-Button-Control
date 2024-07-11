@@ -1,4 +1,5 @@
 import sys
+import random
 from abc import ABC, abstractmethod
 from threading import Thread
 from time import sleep
@@ -165,24 +166,22 @@ class RepeatActionType(ActionTypeInterface):
         super().__init__()
         self._my_thread = None
         self._state = False
-        self._keys = []
 
     def run(self, pressed, keys=None):
-        self._keys = parse_string(keys)
         if pressed:
             # this should never occur?
             if self._state:
                 self._state = False
             else:
                 self._state = True
-                self._my_thread = Thread(target=self._actually_run, args=(), daemon=True)
+                self._my_thread = Thread(target=self._actually_run, args=(keys,), daemon=True)
                 self._my_thread.start()
         else:
             self._state = False
 
-    def _actually_run(self):
+    def _actually_run(self, keys):
         while True:
-            for k in self._keys:
+            for k in parse_string(keys):
                 if self._state:
                     sleep(0.05)
                     if isinstance(k, str):
@@ -372,6 +371,9 @@ def get_modifier(key):
 
 
 def parse_string(my_str: str) -> list:
+    if my_str == "[random]":
+        return str(random.randint(1,9))
+
     keys = []
     i = 0
     while i < len(my_str):
